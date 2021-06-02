@@ -91,6 +91,7 @@ public class Paginacao {
 
 	// ADICIONA CADA PROCESSO AS PÁGINAS DA MEMORIA PRINCIPAL (MEDOTO PRINCIPAL)
 	public void adiconarATabelaPaginas(ProcessoVM processo) {
+		int controle = 1; // CONTROLAR OS PRINTS DE MEMORIA E PAGE MISS
 		int quantPaginasNecessaria = verificarQuatPaginaNecessaria(processo);
 		int contador = 0;
 		int tamanhoRestanteDoProcesso = processo.getTamanhoProcesso();
@@ -111,21 +112,26 @@ public class Paginacao {
 					tamanhoRestanteDoProcesso = this.calculoDoTamanhoRestantanteDoProcesso(tamanhoRestanteDoProcesso,
 							paginasFisicas[i].getTamanho());
 					quantPaginasFisicasRestante -= 1;
-					contador += 1;	
+					contador += 1;
+					System.out.println("ADICIONANDO " + processo.getNome());
 					System.out.println("PROCESSO DE ID: " + processo.getId() + ", NOME: " + processo.getNome()
-							+ ", ADICIONADO COM SUCESSO A PÁGINA ID:" + pagina.getId() + ", ESPAÇO DISPONÍVEL NO BLOCO: "
-							+ paginasFisicas[i].getEspacoDisponivel());
+							+ ", ADICIONADO COM SUCESSO A PÁGINA ID:" + pagina.getId()
+							+ ", ESPAÇO DISPONÍVEL NO BLOCO: " + paginasFisicas[i].getEspacoDisponivel());
 					System.out.println("MOMENTO QUE O PROCESSO FOI ALOCADO NESTE BLOCO: "
 							+ paginasFisicas[i].getData().getTimeInMillis() + " (TIME).");
 				}
 			}
 		} else {
-			System.out.println(
-					"ESPAÇO INSUFICIENTE NA RAM PARA ALOCAR O " + processo.getNome() + " --> EXECUTAR ALGORITMO DE SUBSTITUIÇÃO");
+			System.out.println("ESPAÇO INSUFICIENTE NA RAM PARA ALOCAR O " + processo.getNome()
+					+ " --> EXECUTAR ALGORITMO DE SUBSTITUIÇÃO");
+			controle = 0;
 			FIFO(processo);
-			System.out.println("PROCESSO ADICIONADO COM SUCESSO!");
 		}
-		quantidadeDePaginasDisponiveis();
+		if (controle != 0) {
+			quantidadeDePaginasDisponiveis();
+			System.out.println("PROCESSO ADICIONADO COM SUCESSO!\n");
+			this.pageMiss();
+		}
 	}
 
 	// CALCULA O TAMANHO RESTANTE DE PÁGINAS NECESSÁRIAS PARA CADA PROCESSO
@@ -156,12 +162,17 @@ public class Paginacao {
 		System.out.println("ENTROU NO ALGORITMO");
 		if (!verificarSeTemPaginaFisicaDisponivel(verificarQuatPaginaNecessaria(processo))) {
 			System.out.println("EXECUTANDO");
-			Pagina pagina = paginasFisicas[0];
+			Pagina pagina = null; // paginasFisicas[0];
+			//LAÇO PARA PEGAR PRIMEIRA PÁGINA OCUPADA.
+			for (int j = 0; j < quantPaginasFisicas; j++) {
+				if (pagina == null) {
+					if (paginasFisicas[j] != null) {
+						pagina = paginasFisicas[j];
+					}
+				}
+			}
 			// LAÇO PARA COMPARAR DATAS
 			for (int i = 0; i < quantPaginasFisicas; i++) {
-				if (paginasFisicas[i] != null) {
-					// System.out.println(paginasFisicas[i].getData().compareTo(pagina.getData()));
-				}
 				if (paginasFisicas[i] != null && paginasFisicas[i].getData().compareTo(pagina.getData()) == -1) {
 					pagina = paginasFisicas[i];
 				}
@@ -203,7 +214,7 @@ public class Paginacao {
 	// FAZ A ALOCAÇÃO DA PÁGINA QUE ESTAVA NA MEMÓRIA FISICA PARA MEMÓRIA VIRTUAL.
 	public void swapping(Pagina pagina) {
 		System.out.println("FAZENDO SWAP OUT");
-		int contador = 1;
+		int contador = 1; // SERVE PARA MOVER UMA ÚNICA PÁGINA PARA NÂO PREENCHER TODO ARRAY
 		for (int i = 0; i < paginasVirtuais.length; i++) {
 			if (paginasVirtuais[i] == null && contador != 0) {
 				paginasVirtuais[i] = pagina;
@@ -212,5 +223,32 @@ public class Paginacao {
 				System.out.println("PaginaID:" + pagina.getId() + " MOVIDA PARA MEMÓRIA VIRTUAL.\n");
 			}
 		}
+	}
+	// PEGE MISS -> VERIFICA SE OS PROCESSOS QUE ESTÃO NA MEMORIA RAM NAQUELE MOMENTO ESTÁO COMPLETOS
+	public void pageMiss() {
+		int count = 0;
+		ProcessoVM processo = null;
+		ProcessoVM processoControle = null;
+		for (int i = 0; i < paginasFisicas.length; i++) {
+			if (paginasFisicas[i] != null) {
+				processo = paginasFisicas[i].getProcesso();
+				if (processo != processoControle) {
+					for (int j = 0; j < paginasVirtuais.length; j++) {
+						if (paginasVirtuais[j] != null) {
+							if (paginasFisicas[i].getProcesso().getId() == paginasVirtuais[j].getProcesso().getId()) {
+								count++;
+							} else {
+								break;
+							}
+						} else {
+							break;
+						}
+					}
+					processoControle = processo;
+				}
+			}
+		}
+		System.out.println("PAGE MISS NESSE MOMENTO:" + count + "\n");
+		processo = null;
 	}
 }
