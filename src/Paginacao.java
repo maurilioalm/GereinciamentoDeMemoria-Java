@@ -1,3 +1,4 @@
+
 //       PARTE II
 import java.util.Scanner;
 
@@ -12,24 +13,27 @@ public class Paginacao {
 	Pagina[] paginasFisicas = new Pagina[4];
 	Pagina[] paginasVirtuais = null;
 
+	// CONSTRUTOR
 	public Paginacao() {
 		this.selecionarTamanhoMemoriaVirtual();
 	}
-	//Cria o array de paginas virtuais de acordo com o tamanho selecionado
+
+	// CRIA UM ARRAY DE PAGINAS VIRTUAIS DE ACORDO COM A QUANTIDADE SELECIONADA.
 	public void criarArrayDePaginas() {
 		int i = memoriaVirtual / 4;
 		this.paginasVirtuais = new Pagina[i];
 	}
-	//Permite a escolha do tamanho da Memoria virtual
+
+	// PERMITE A ESCOLHA DO TAMANHO DA MEMORIA VIRTUAL
 	public void selecionarTamanhoMemoriaVirtual() {
 		int tamanho = 0;
 		do {
-			System.out.println("Escolha o opção entre os tamanhos disponíveis de paginação em KB: 16,32 ou 64.");
+			System.out.println("ESCOLHA A OPÇÃO ENTRE OS TAMANHOS DE PAGINAÇÃO DISPONÍVEISEM KB: 16,32 ou 64.");
 			Scanner sc = new Scanner(System.in);
 			tamanho = sc.nextInt();
 			sc.close();
 			if (tamanho != 16 && tamanho != 32 && tamanho != 64) {
-				System.out.println("Valor incorreto!");
+				System.out.println("VALOR INCORRETO!");
 			}
 		} while (tamanho != 16 && tamanho != 32 && tamanho != 64);
 		switch (tamanho) {
@@ -49,39 +53,43 @@ public class Paginacao {
 		this.criarArrayDePaginas();
 		quantPaginasVirtuais = calcularQuantPaginas(memoriaVirtual);
 		quantPaginasVirtuaisRestante = calcularQuantPaginas(memoriaVirtual);
-		System.out.println("Você tem " + this.calcularQuantPaginas(memoriaVirtual)
-				+ " páginas disponíveis na memoria virtual, cada pagina com tamanho de: " + this.tamamhoDasPaginas()
+		System.out.println("\nVOCÊ TEM " + quantPaginasFisicas
+				+ " PÁGINAS DISPONÍVEIS NA MEMÓRIA FÍSICA, CADA PÁGINA COM O TAMANHO DE: " + this.tamamhoDasPaginas()
 				+ "KB");
-		System.out.println("Você tem " + quantPaginasFisicas
-				+ " páginas disponíveis na memoria fisica, cada pagina com tamanho de: " + this.tamamhoDasPaginas()
+		System.out.println("Você tem " + this.calcularQuantPaginas(memoriaVirtual)
+				+ " PÁGINAS DISPONÍVEIS NA MEMÓRIA VIRTUAL, CADA PÁGINA COM TAMANHO DE: " + this.tamamhoDasPaginas()
 				+ "KB");
 		this.printTamanhoMemoriaVirtual();
-
 	}
-	//Calcula a Quantidade de Paginas que terá a memoria virtual, dependendo do tamanho da memória.
+
+	// CALCULA A QUANTIDADE DE PAGINAS DA MEMORIA VIRTUAL DE ACORDO COM O TAMANHO DA
+	// MEMORIA SELECIONADO.
 	public int calcularQuantPaginas(int memoriaVirtual) {
 		return (memoriaVirtual / 4);
 	}
-	//Impressão de controle Memoria Física e Virtual.
+
+	// IMPRESSÃO STATUS DA MEMORIA FÍSICA E VIRTUAL
 	public void printTamanhoMemoriaVirtual() {
-		System.out.println("O tamanho total da sua memoria fisica é: " + memoriaFisica + "KB");
-		System.out.println("O tamanho total da sua memoria virtual é: " + memoriaVirtual + "KB");
+		System.out.println("O TAMANHO DA SUA MEMÓRIA FÍSICA É: " + memoriaFisica + "KB");
+		System.out.println("O TAMANHO DA SUA MEMÓRIA VIRTUAL É: " + memoriaVirtual + "KB\n");
 	}
-	//Define o tamanho das páginas sejam Física ou Virtuais.
+
+	// DEFINE O TAMANHO DAS PÁGINAS
 	public int tamamhoDasPaginas() {
 		return 4;
 	}
-	//Calcula a quantidade de páginas necessárias para cada processo.
+
+	// CALCULA A QUANTIDADE DE PÁGINAS NECESSÁRIAS PARA CADA PROCESSO
 	public int verificarQuatPaginaNecessaria(ProcessoVM processo) {
 		int contador = 0;
 		contador = processo.getTamanhoProcesso() / 4;
 		if ((processo.getTamanhoProcesso() % 4) != 0) {
 			contador += 1;
 		}
-		// System.out.println(contador);
 		return contador;
 	}
-	//Adiciona o processo a Memória (MEDOTO PRINCIPAL)
+
+	// ADICIONA CADA PROCESSO AS PÁGINAS DA MEMORIA PRINCIPAL (MEDOTO PRINCIPAL)
 	public void adiconarATabelaPaginas(ProcessoVM processo) {
 		int quantPaginasNecessaria = verificarQuatPaginaNecessaria(processo);
 		int contador = 0;
@@ -103,100 +111,106 @@ public class Paginacao {
 					tamanhoRestanteDoProcesso = this.calculoDoTamanhoRestantanteDoProcesso(tamanhoRestanteDoProcesso,
 							paginasFisicas[i].getTamanho());
 					quantPaginasFisicasRestante -= 1;
-					contador += 1;
-					System.out.println("Momento processo alocado: " + paginasFisicas[i].getData().getTimeInMillis());
-					System.out.println("ProcessoID: " + processo.getId() + ", Nome: " + processo.getNome()
-							+ ", adicionado a paginaID:" + pagina.getId() + ", espaço disponível no bloco: "
+					contador += 1;	
+					System.out.println("PROCESSO DE ID: " + processo.getId() + ", NOME: " + processo.getNome()
+							+ ", ADICIONADO COM SUCESSO A PÁGINA ID:" + pagina.getId() + ", ESPAÇO DISPONÍVEL NO BLOCO: "
 							+ paginasFisicas[i].getEspacoDisponivel());
+					System.out.println("MOMENTO QUE O PROCESSO FOI ALOCADO NESTE BLOCO: "
+							+ paginasFisicas[i].getData().getTimeInMillis() + " (TIME).");
 				}
 			}
 		} else {
-			System.out.println("Espaço insuficiente para o: " + processo.getNome() + " --> executar FIFO");
+			System.out.println(
+					"ESPAÇO INSUFICIENTE NA RAM PARA ALOCAR O " + processo.getNome() + " --> EXECUTAR ALGORITMO DE SUBSTITUIÇÃO");
 			FIFO(processo);
-			System.out.println("Processo adicionado com sucesso!");
+			System.out.println("PROCESSO ADICIONADO COM SUCESSO!");
 		}
 		quantidadeDePaginasDisponiveis();
 	}
-	
-	//Calcula o tamanho restante de espaço necessário para cada página de um processo.
+
+	// CALCULA O TAMANHO RESTANTE DE PÁGINAS NECESSÁRIAS PARA CADA PROCESSO
 	public int calculoDoTamanhoRestantanteDoProcesso(int tamanho, int paginaTamanho) {
 		if ((tamanho - paginaTamanho) < 0) {
 			return 0;
 		}
 		return (tamanho - paginaTamanho);
 	}
-	//Calcula o tamanho restante da página.
+
+	// CALCULA O TAMANHO RESTANTE DA PÁGINA
 	public int calculoDoTamanhoRestanteDaPagina(int tamanho, int paginaTamanho) {
 		if (tamanho >= paginaTamanho) {
 			return 0;
 		}
 		return (paginaTamanho - tamanho);
 	}
-	// Calcula a quantidade de Páginas Disponíveis.
+
+	// IMPRIME A QUANTIDADE DE PÁGINAS DISPONÍVEIS
 	public void quantidadeDePaginasDisponiveis() {
-		System.out.println("Temos " + quantPaginasFisicasRestante + " páginas FISICAS disponíveis.");
-		System.out.println("Temos " + quantPaginasVirtuaisRestante + " páginas VIRTUAIS disponíveis.");
+		System.out.println("TEMOS " + quantPaginasFisicasRestante + " PÁGINAS FÍSICAS DISPONÍVEIS.");
+		System.out.println("TEMOS " + quantPaginasVirtuaisRestante + " PÁGINAS VIRTUAIS DISPONÍVEIS.");
 		this.fragmentacao();
 	}
-	//Substitui uma página quando um novo processo precisa ser alocado e não tem espaço
-	//suficiente na Memória Física.
+
+	// ALGORITMO DE SUBSTITUIÇÃO
 	public void FIFO(ProcessoVM processo) {
-		System.out.println("Entrou no FIFO");
+		System.out.println("ENTROU NO ALGORITMO");
 		if (!verificarSeTemPaginaFisicaDisponivel(verificarQuatPaginaNecessaria(processo))) {
-			System.out.println("Executando");
+			System.out.println("EXECUTANDO");
 			Pagina pagina = paginasFisicas[0];
-			// laço para Comparar datas
+			// LAÇO PARA COMPARAR DATAS
 			for (int i = 0; i < quantPaginasFisicas; i++) {
 				if (paginasFisicas[i] != null) {
-					System.out.println(paginasFisicas[i].getData().compareTo(pagina.getData()));
+					// System.out.println(paginasFisicas[i].getData().compareTo(pagina.getData()));
 				}
 				if (paginasFisicas[i] != null && paginasFisicas[i].getData().compareTo(pagina.getData()) == -1) {
 					pagina = paginasFisicas[i];
 				}
 			}
-			// Laço para excluir pagina
+			// LAÇO PARA EXCLUIR PÁGINAS
 			for (int i = 0; i < quantPaginasFisicas; i++) {
 				if (paginasFisicas[i] != null && paginasFisicas[i] == pagina) {
-					System.out.println("PaginaID:" + paginasFisicas[i].getId() + " REMOVIDA. Time = "
-							+ paginasFisicas[i].getData().getTimeInMillis());
+					System.out.println("PaginaID:" + paginasFisicas[i].getId() + " E TIME = "
+							+ paginasFisicas[i].getData().getTimeInMillis() + " REMOVIDA COM SUCESSO.\n");
 					this.swapping(paginasFisicas[i]);
 					paginasFisicas[i] = null;
 				}
 			}
 
 			quantPaginasFisicasRestante += 1;
-			System.out.println("Tentar Adicionar " + processo.getNome() + " novamente");
+			System.out.println("TENTAR ADICIONAR O " + processo.getNome() + " NOVAMENTE.\n");
 			this.adiconarATabelaPaginas(processo);
 		}
 	}
-	//Verifica a quantidade de Páginas Físicas Disponíveis.
+
+	// VERIFICA SE TEM A QUANTIDADE DE PÁGINAS NECESSÁRIAS PARA ALOCAR ESSE PROCESSO
 	public boolean verificarSeTemPaginaFisicaDisponivel(int quantNecessaria) {
 		if (quantNecessaria <= quantPaginasFisicasRestante) {
 			return true;
 		}
 		return false;
 	}
-	//Calcula a fragmentação interna.
+
+	// CALCULA E IMPRIME A FRAGMENTAÇÃO INTERNA DAS PÁGINAS FÍSICAS
 	public void fragmentacao() {
-		int aux = 0;
+		int fragmentacao = 0;
 		for (int i = 0; i < quantPaginasFisicas; i++) {
 			if (paginasFisicas[i] != null)
-				aux += paginasFisicas[i].getEspacoDisponivel();
+				fragmentacao += paginasFisicas[i].getEspacoDisponivel();
 		}
-		System.out.println("Total de fragmentação interna: " + aux);
+		System.out.println("TOTAL DE FRAGMENTAÇÃO INTERNA: " + fragmentacao + "\n");
 	}
-	//Faz a alocação da página que estava na Memória Física na Virtual.
+
+	// FAZ A ALOCAÇÃO DA PÁGINA QUE ESTAVA NA MEMÓRIA FISICA PARA MEMÓRIA VIRTUAL.
 	public void swapping(Pagina pagina) {
-		System.out.println("Entrou  no swap");
+		System.out.println("FAZENDO SWAP OUT");
 		int contador = 1;
 		for (int i = 0; i < paginasVirtuais.length; i++) {
 			if (paginasVirtuais[i] == null && contador != 0) {
 				paginasVirtuais[i] = pagina;
 				contador -= 1;
 				quantPaginasVirtuaisRestante -= 1;
-				System.out.println("PaginaID:" + pagina.getId() + " movida para memória virtual");
+				System.out.println("PaginaID:" + pagina.getId() + " MOVIDA PARA MEMÓRIA VIRTUAL.\n");
 			}
 		}
 	}
-
 }

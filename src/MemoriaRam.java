@@ -17,13 +17,15 @@ public class MemoriaRam {
 
 	// MENSAGEM INICIAL
 	public void mensagemInicial() {
-		System.out.println("Blocos fixos criados com sucesso." + " Tamanho total 16MB, divido em quatro blocos de 4MB");
+		System.out.println(
+				"BLOCOS FIXOS CRIADOS COM SUCESSO." + " TAMANHO TOTAL 16MB, DIVIDO EM QUATRO BLOCOS DE 4MB.\n");
 	}
 
 	// ALOCACAO DE MEMORIA FIRST-FIT
 	public void addProcessoAosBlocos(Processo processo) {
 		if (this.verificarEspacoDisponivel(processo)) {
 			if (this.verificarTamanhoProcesso(processo)) {
+				System.out.println("TENTAR ADICIONAR PROCESSO.");
 				for (int i = 0; i < 4; i++) {
 					if (blocos[i] == null && processo.getControle() != 0) {
 						processo.setParticao(i);
@@ -32,13 +34,16 @@ public class MemoriaRam {
 						bloco.setProcesso(processo);
 						bloco.setUsado(processo.getValor());
 						blocos[i] = bloco;
-						System.out.println("Processo de ID: " + blocos[i].getProcesso().getId() + " Nome: "
-								+ blocos[i].getProcesso().getNome() + " Adicionado com sucesso ao Bloco: "
+						System.out.println("PROCESSO DE ID: " + blocos[i].getProcesso().getId() + " NOME: "
+								+ blocos[i].getProcesso().getNome() + " ADICIONADO COM SUCESSO AO BLOCO: "
 								+ blocos[i].getProcesso().getParticao());
 						this.statusDaMemoria();
 					}
 				}
+				System.out.println("PROCESSO ADICIONADO COM SUCESSO!");
+				this.statusDaMemoriaVirtual();
 			} else {
+				System.out.println("TENTAR ADICIONAR PROCESSO.");
 				processo.setControle(verificaQuantBlocosNecessarios(processo.getValor()));
 				for (int i = 0; i < 4; i++) {
 					if (blocos[i] == null && processo.getControle() != 0) {
@@ -54,17 +59,21 @@ public class MemoriaRam {
 							bloco.setUsado(processoTemp.getValor());
 						}
 						blocos[i] = bloco;
-						System.out.println("Processo de ID: " + blocos[i].getProcesso().getId() + " Nome: "
-								+ blocos[i].getProcesso().getNome() + " Adicionado com sucesso ao Bloco: "
+						System.out.println("PROCESSO ID: " + blocos[i].getProcesso().getId() + " NOME: "
+								+ blocos[i].getProcesso().getNome() + " ADICIONADO COM SUCESSO AO BLOCO: "
 								+ blocos[i].getProcesso().getParticao());
 						this.statusDaMemoria();
 					}
 				}
+				System.out.println("PROCESSO ADICIONADO COM SUCESSO!");
+				this.statusDaMemoriaVirtual();
 			}
 		} else {
-			System.out.println("Memoria cheia! " + processo.nome + " NÃO adicionado por falta de Memória disponível.");
+			System.out.println("MEMÓRIA CHEIA! " + processo.nome
+					+ " NÃO ADICIONADO POR FALTA DE MEMÓRIA FÍSICA DISPONÍVEL.\nEXECUTAR LIBERAÇÃO DE ESPAÇO.\n");
 			this.retirarProcesso(processo);
-			System.out.println("FAZENDO SWAPPING!");
+			System.out.println("\nFAZENDO SWAP OUT.");
+			this.statusDaMemoriaVirtual();
 			this.addProcessoAosBlocos(processo);
 		}
 
@@ -88,7 +97,7 @@ public class MemoriaRam {
 		return aux;
 	}
 
-	// VERIFICA A FRAGMENTAÇÃO INTERNA DOS BLOCOS
+	// VERIFICA A FRAGMENTAÇÃO INTERNA DOS BLOCOS DA MEMÓRIA FÍSICA.
 	public int verificarFragmentacao() {
 		int fragmentacao = 0;
 		for (int i = 0; i < 4; i++) {
@@ -100,8 +109,21 @@ public class MemoriaRam {
 		}
 		return fragmentacao;
 	}
+	
+	// VERIFICA A FRAGMENTAÇÃO INTERNA DOS BLOCOS DA MEMÓRIA VIRTUAL.
+	public int verificarFragmentacaoMemoriaVirtual() {
+		int fragmentacao = 0;
+		for (int i = 0; i < 8; i++) {
+			if (blocosMemoriaVirtual[i] != null) {
+				if (blocosMemoriaVirtual[i].getUsado() <= 4) {
+					fragmentacao += blocoMb - blocosMemoriaVirtual[i].getUsado();
+				}
+			}
+		}
+		return fragmentacao;
+	}
 
-	// VERIFICA A QUANTIDADE DE MEMORIA DISPONÍVEL
+	// VERIFICA A QUANTIDADE DE MEMÓRIA DISPONÍVEL
 	public int verificarMemoriaDisponivel() {
 		int memoDis = 16;
 		for (int i = 0; i < 4; i++) {
@@ -112,7 +134,18 @@ public class MemoriaRam {
 		return memoDis;
 	}
 
-	// VERIFICA A QUANTIDADE DE BLOCOS DISPONÍVEIS NA MEMORIA PRINCIPAL//
+	// VERIFICAR A QUANTIDADE DE MEMÓRIA VIRTUAL DISPONÍVEL
+	public int verificarMemoriaVirtualDisponivel() {
+		int memoDis = 32;
+		for (int i = 0; i < 8; i++) {
+			if (blocosMemoriaVirtual[i] != null) {
+				memoDis -= blocosMemoriaVirtual[i].getUsado();
+			}
+		}
+		return memoDis;
+	}
+
+	// VERIFICA A QUANTIDADE DE BLOCOS DISPONÍVEIS NA MEMÓRIA PRINCIPAL//
 	public int verificarBlocosDisponiveis() {
 		int quantidade = 0;
 		for (int i = 0; i < 4; i++) {
@@ -134,16 +167,21 @@ public class MemoriaRam {
 	}
 
 	// RETIRA UM PROCESSO DOS BLOCOS DE FORMA ALEATÓRIA E COLOCA
-	// OS BLOCOS DESSE PROCESSO NA MEMORIA VIRTAL (SWAPPING)
+	// OS BLOCOS DESSE PROCESSO NA MEMÓRIA VIRTAL (SWAPPING)
 	public void retirarProcesso(Processo processo) {
 		int quantNecessariaPeloProcesso = this.verificaQuantBlocosNecessarios(processo.getValor());
 		int random = (int) ((Math.random() * 10) % 4);
 		for (int i = 0; i < 4; i++) {
 			if (blocos[i] != null) {
 				if (blocos[i].processo.getId() == random) {
-					blocosMemoriaVirtual[i] = blocos[i];
-					System.out.println("Bloco: " + i + " Liberado com sucesso." + blocos[i].processo.getNome()
-							+ " Retirado com sucesso");
+					for (int j = 0; j < 8; j++) {
+						if (blocosMemoriaVirtual[j] == null) {
+							blocosMemoriaVirtual[j] = blocos[i];
+							break;
+						}
+					}
+					System.out.println("BLOCO: " + i + " LIBERADO COM SUCESSO! --> " + blocos[i].processo.getNome()
+							+ " RETIRADO COM SUCESSO.");
 					blocos[i] = null;
 				}
 			}
@@ -156,7 +194,7 @@ public class MemoriaRam {
 		}
 	}
 
-	// IMPRIME O STATUS DA MEMORIA (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
+	// IMPRIME O STATUS DA MEMÓRIA FÍSICA (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
 	public void statusDaMemoria() {
 		int aux = 0;
 		for (int i = 0; i < 4; i++) {
@@ -164,8 +202,20 @@ public class MemoriaRam {
 				aux += 4;
 			}
 		}
-		System.out.println("Memoria Total: " + tamanhoTotalMB + ", Memoria Ocupada: " + aux + "MB, Memoria Disponível: "
-				+ this.verificarMemoriaDisponivel() + "MB" + ", Fragmentação interna atual: "
-				+ this.verificarFragmentacao() + "MB");
+		System.out.println("MEMÓRIA FÍSICA TOTAL: " + tamanhoTotalMB + ", MEMÓRIA FÍSICA OCUPADA: " + aux
+				+ "MB, MEMÓRIA DISPONÍVEL: " + this.verificarMemoriaDisponivel() + "MB"
+				+ ", FRAGMENTAÇÃO INTERNA ATUAL: " + this.verificarFragmentacao() + "MB");
+	}
+	// IMPRIME O STATUS DA MEMÓRIA VIRTUAL (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
+	public void statusDaMemoriaVirtual() {
+		int aux = 0;
+		for (int i = 0; i < 8; i++) {
+			if (blocosMemoriaVirtual[i] != null) {
+				aux += 4;
+			}
+		}
+		System.out.println("\nMEMÓRIA VIRTUAL TOTAL: " + (blocoMb * 8) + ", MEMÓRIA VIRTUAL OCUPADA: " + aux
+				+ "MB, MEMÓRIA DISPONÍVEL: " + this.verificarMemoriaVirtualDisponivel() + "MB"
+				+ ", FRAGMENTAÇÃO INTERNA (VIRTUAL): " + this.verificarFragmentacaoMemoriaVirtual() + "MB.\n");
 	}
 }
