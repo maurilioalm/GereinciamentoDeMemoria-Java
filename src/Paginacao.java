@@ -27,29 +27,15 @@ public class Paginacao {
 	// PERMITE A ESCOLHA DO TAMANHO DA MEMORIA VIRTUAL
 	public void selecionarTamanhoMemoriaVirtual() {
 		int tamanho = 0;
+		Scanner sc = new Scanner(System.in);
 		do {
-			System.out.println("ESCOLHA A OPÇÃO ENTRE OS TAMANHOS DE PAGINAÇÃO DISPONÍVEISEM KB: 16,32 ou 64.");
-			Scanner sc = new Scanner(System.in);
+			System.out.println("ESCOLHA A OPÇÃO ENTRE OS TAMANHOS DE PAGINAÇÃO DISPONÍVEIS EM KB: 16,32 ou 64.");
 			tamanho = sc.nextInt();
-			sc.close();
 			if (tamanho != 16 && tamanho != 32 && tamanho != 64) {
 				System.out.println("VALOR INCORRETO!");
 			}
 		} while (tamanho != 16 && tamanho != 32 && tamanho != 64);
-		switch (tamanho) {
-		case 16: {
-			memoriaVirtual = 16;
-			break;
-		}
-		case 32: {
-			memoriaVirtual = 32;
-			break;
-		}
-		case 64: {
-			memoriaVirtual = 64;
-			break;
-		}
-		}
+		memoriaVirtual = tamanho;
 		this.criarArrayDePaginas();
 		quantPaginasVirtuais = calcularQuantPaginas(memoriaVirtual);
 		quantPaginasVirtuaisRestante = calcularQuantPaginas(memoriaVirtual);
@@ -60,6 +46,7 @@ public class Paginacao {
 				+ " PÁGINAS DISPONÍVEIS NA MEMÓRIA VIRTUAL, CADA PÁGINA COM TAMANHO DE: " + this.tamamhoDasPaginas()
 				+ "KB");
 		this.printTamanhoMemoriaVirtual();
+		sc.close();
 	}
 
 	// CALCULA A QUANTIDADE DE PAGINAS DA MEMORIA VIRTUAL DE ACORDO COM O TAMANHO DA
@@ -154,6 +141,8 @@ public class Paginacao {
 	public void quantidadeDePaginasDisponiveis() {
 		System.out.println("TEMOS " + quantPaginasFisicasRestante + " PÁGINAS FÍSICAS DISPONÍVEIS.");
 		System.out.println("TEMOS " + quantPaginasVirtuaisRestante + " PÁGINAS VIRTUAIS DISPONÍVEIS.");
+		this.statusDaMemoria();
+		this.statusDaMemoriaVirtual();
 		this.fragmentacao();
 	}
 
@@ -163,7 +152,7 @@ public class Paginacao {
 		if (!verificarSeTemPaginaFisicaDisponivel(verificarQuatPaginaNecessaria(processo))) {
 			System.out.println("EXECUTANDO");
 			Pagina pagina = null; // paginasFisicas[0];
-			//LAÇO PARA PEGAR PRIMEIRA PÁGINA OCUPADA.
+			// LAÇO PARA PEGAR PRIMEIRA PÁGINA OCUPADA.
 			for (int j = 0; j < quantPaginasFisicas; j++) {
 				if (pagina == null) {
 					if (paginasFisicas[j] != null) {
@@ -224,7 +213,9 @@ public class Paginacao {
 			}
 		}
 	}
-	// PEGE MISS -> VERIFICA SE OS PROCESSOS QUE ESTÃO NA MEMORIA RAM NAQUELE MOMENTO ESTÁO COMPLETOS
+
+	// PEGE MISS -> VERIFICA SE OS PROCESSOS QUE ESTÃO NA MEMORIA RAM NAQUELE
+	// MOMENTO ESTÁO COMPLETOS
 	public void pageMiss() {
 		int count = 0;
 		ProcessoVM processo = null;
@@ -251,4 +242,26 @@ public class Paginacao {
 		System.out.println("PAGE MISS NESSE MOMENTO:" + count + "\n");
 		processo = null;
 	}
+
+	// IMPRIME O STATUS DA MEMÓRIA FÍSICA (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
+	public void statusDaMemoria() {
+		int aux = 0;
+		for (int i = 0; i < 4; i++) {
+			if (paginasFisicas[i] != null) {
+				aux += 4;
+			}
+		}
+		System.out.println("MEMÓRIA FÍSICA TOTAL: " + memoriaFisica + "KB, MEMÓRIA FÍSICA OCUPADA: " + aux +"KB.");
+	}
+	
+	// IMPRIME O STATUS DA MEMÓRIA VIRTUAL (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
+		public void statusDaMemoriaVirtual() {
+			int aux = 0;
+			for (int i = 0; i < quantPaginasVirtuais; i++) {
+				if (paginasVirtuais[i] != null) {
+					aux += 4;
+				}
+			}
+			System.out.println("MEMÓRIA VIRTUAL TOTAL: " + memoriaVirtual + "KB, MEMÓRIA VIRTUAL OCUPADA: " + aux + "KB.");
+		}
 }

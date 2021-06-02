@@ -1,12 +1,20 @@
 //       PARTE I
 public class Processo {
-	
+
 	int id;
 	String nome;
 	int valor;
 	int particao;
-	int controle = 1; // VARIAVEL PARA CONTROLAR A QUANTIDADE DE ALOCACOES NO ARRAY.
-	
+	int controle; // VARIAVEL PARA CONTROLAR A QUANTIDADE DE ALOCACOES NO ARRAY.
+
+	public Processo(int id, String nome, int valor) {
+
+		this.id = id;
+		this.nome = nome;
+		this.valor = valor;
+		this.controle = 1;
+	}
+
 	public int getControle() {
 		return controle;
 	}
@@ -21,13 +29,6 @@ public class Processo {
 
 	public void setParticao(int particao) {
 		this.particao = particao;
-	}
-
-	public Processo(int id, String nome, int valor) {
-
-		this.id = id;
-		this.nome = nome;
-		this.valor = valor;
 	}
 
 	public int getId() {

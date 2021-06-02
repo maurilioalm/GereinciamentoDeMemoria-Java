@@ -17,8 +17,8 @@ public class MemoriaRam {
 
 	// MENSAGEM INICIAL
 	public void mensagemInicial() {
-		System.out.println(
-				"BLOCOS FIXOS CRIADOS COM SUCESSO." + " TAMANHO TOTAL 16MB, DIVIDO EM QUATRO BLOCOS DE 4MB.\n");
+		System.out.println("BLOCOS DE TAMANHO FIXO CRIADOS COM SUCESSO."
+				+ " TAMANHO TOTAL 16MB, DIVIDO EM QUATRO BLOCOS DE 4MB.\n");
 	}
 
 	// ALOCACAO DE MEMORIA FIRST-FIT
@@ -109,7 +109,7 @@ public class MemoriaRam {
 		}
 		return fragmentacao;
 	}
-	
+
 	// VERIFICA A FRAGMENTAÇÃO INTERNA DOS BLOCOS DA MEMÓRIA VIRTUAL.
 	public int verificarFragmentacaoMemoriaVirtual() {
 		int fragmentacao = 0;
@@ -121,28 +121,6 @@ public class MemoriaRam {
 			}
 		}
 		return fragmentacao;
-	}
-
-	// VERIFICA A QUANTIDADE DE MEMÓRIA DISPONÍVEL
-	public int verificarMemoriaDisponivel() {
-		int memoDis = 16;
-		for (int i = 0; i < 4; i++) {
-			if (blocos[i] != null) {
-				memoDis -= blocos[i].getUsado();
-			}
-		}
-		return memoDis;
-	}
-
-	// VERIFICAR A QUANTIDADE DE MEMÓRIA VIRTUAL DISPONÍVEL
-	public int verificarMemoriaVirtualDisponivel() {
-		int memoDis = 32;
-		for (int i = 0; i < 8; i++) {
-			if (blocosMemoriaVirtual[i] != null) {
-				memoDis -= blocosMemoriaVirtual[i].getUsado();
-			}
-		}
-		return memoDis;
 	}
 
 	// VERIFICA A QUANTIDADE DE BLOCOS DISPONÍVEIS NA MEMÓRIA PRINCIPAL//
@@ -203,9 +181,10 @@ public class MemoriaRam {
 			}
 		}
 		System.out.println("MEMÓRIA FÍSICA TOTAL: " + tamanhoTotalMB + ", MEMÓRIA FÍSICA OCUPADA: " + aux
-				+ "MB, MEMÓRIA DISPONÍVEL: " + this.verificarMemoriaDisponivel() + "MB"
-				+ ", FRAGMENTAÇÃO INTERNA ATUAL: " + this.verificarFragmentacao() + "MB");
+				+ "MB, MEMÓRIA DISPONÍVEL: " + (tamanhoTotalMB - aux) + "MB" + ", FRAGMENTAÇÃO INTERNA ATUAL: "
+				+ this.verificarFragmentacao() + "MB");
 	}
+
 	// IMPRIME O STATUS DA MEMÓRIA VIRTUAL (TOTAL, OCUPADA, DISPONÍVEL, FRAGMENTADA)
 	public void statusDaMemoriaVirtual() {
 		int aux = 0;
@@ -215,7 +194,7 @@ public class MemoriaRam {
 			}
 		}
 		System.out.println("\nMEMÓRIA VIRTUAL TOTAL: " + (blocoMb * 8) + ", MEMÓRIA VIRTUAL OCUPADA: " + aux
-				+ "MB, MEMÓRIA DISPONÍVEL: " + this.verificarMemoriaVirtualDisponivel() + "MB"
-				+ ", FRAGMENTAÇÃO INTERNA (VIRTUAL): " + this.verificarFragmentacaoMemoriaVirtual() + "MB.\n");
+				+ "MB, MEMÓRIA DISPONÍVEL: " + ((blocoMb * 8) - aux) + "MB" + ", FRAGMENTAÇÃO INTERNA (VIRTUAL): "
+				+ this.verificarFragmentacaoMemoriaVirtual() + "MB.\n");
 	}
 }
